@@ -65,10 +65,11 @@ for source in SOURCES:
     for entry in feed.entries:
         
 
-articles.sort(
-    key=lambda x: x.get("published_parsed", ()),
-    reverse=True
-)
+
+        articles.sort(
+            key=lambda x: x.get("published_parsed", ()),
+            reverse=True
+        )
 
 for article in articles[:50]:
 
