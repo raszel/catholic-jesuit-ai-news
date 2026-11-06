@@ -84,6 +84,9 @@ for article_data in articles[:50]:
     fe.title(article.title)
 
     fe.link(href=article.link)
+
+    description = ""
+    
     if "media_content" in article:
         
         image_url = article.media_content[0]["url"]
