@@ -85,14 +85,14 @@ for article_data in articles[:50]:
 
     fe.link(href=article.link)
     if "media_content" in article:
-
-    image_url = article.media_content[0]["url"]
-
-    fe.enclosure(
-        image_url,
-        0,
-        "image/jpeg"
-    ) 
+        
+        image_url = article.media_content[0]["url"]
+    
+        fe.enclosure(
+            image_url,
+            0,
+            "image/jpeg"
+        ) 
 
     pub_date = article.get(
         "published",
