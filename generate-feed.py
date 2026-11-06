@@ -1,6 +1,7 @@
 import feedparser
 from feedgen.feed import FeedGenerator
 from datetime import datetime
+import re
 
 SOURCES = [
     "https://www.vaticannews.va/en.rss.xml",
@@ -14,7 +15,19 @@ KEYWORDS = [
     "magnifica humanitas",
     "artificial intelligence",
     "intelligenza artificiale",
-    "AI"
+    "machine learning",
+    "generative ai",
+    "large language model",
+    "llm",
+    "digital ethics",
+    "technology ethics",
+    "ethics of technology",
+    "algorithmic",
+    "algorithms",
+    "responsible ai",
+    "ai governance",
+    "digital humanity",
+    "human dignity"
 ]
 
 fg = FeedGenerator()
@@ -39,9 +52,18 @@ for source in SOURCES:
             + entry.get("summary", "")
         ).lower()
 
-        if any(k.lower() in text for k in KEYWORDS):
+        keyword_match = any(
+            keyword in text
+            for keyword in KEYWORDS
+        )
+
+        ai_match = re.search(r"\bai\b", text)
+
+        if keyword_match or ai_match:
 
             articles.append(entry)
+    for entry in feed.entries:
+        
 
 articles.sort(
     key=lambda x: x.get("published_parsed", ()),
@@ -60,6 +82,11 @@ for article in articles[:50]:
 
 rss_path = "docs/rss.xml"
 
+print(f"Found {len(articles)} matching articles")
+
 fg.rss_file(rss_path)
+
+print(f"Wrote {rss_path}")
+
 
 print("RSS feed generated.")
