@@ -84,8 +84,6 @@ for article_data in articles[:50]:
     fe.title(article.title)
 
     fe.link(href=article.link)
-
-    description = ""
     
     if "media_content" in article:
         
@@ -102,33 +100,45 @@ for article_data in articles[:50]:
         article.get("updated", "Unknown date")
     )
 
-    description += (
-        f"<p><strong>Published:</strong> "
-        f"{pub_date}</p>"
-    )
+    description = "<div style='margin-left:25px;'>"
 
     if pub_date:
-        description += f"<p><strong>Published:</strong> {pub_date}</p>"
-
-    description += f"<p><strong>Source:</strong> {source_name}</p>"
+        description += (
+            f"<div><strong>Published:</strong> "
+            f"{pub_date}</div>"
+        )
+    
+    description += (
+        f"<div><strong>Source:</strong> "
+        f"{source_name}</div>"
+    )
     
     if "summary" in article:
-
+    
         summary = article.summary
-
-        if len(summary) > 200:
+    
+        if len(summary) > 300:
             summary = (
-                summary[:200]
+                summary[:300]
                 .rsplit(" ", 1)[0]
                 + "..."
             )
-
-        description += f"<p>{summary}</p>"
-
+    
+        description += (
+            f"<div style='margin-top:8px;'>"
+            f"{summary}"
+            "</div>"
+        )
+    
     description += (
-        f'<p><a href="{article.link}">Read full article</a></p>'
+        f"<div style='margin-top:8px;'>"
+        f'<a href="{article.link}">'
+        "Read full article</a>"
+        "</div>"
     )
-
+    
+    description += "</div>"
+    
     fe.description(description)
 
     from datetime import datetime
