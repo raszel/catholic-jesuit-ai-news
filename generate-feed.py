@@ -96,10 +96,13 @@ for article_data in articles[:50]:
 
     pub_date = article.get(
         "published",
-        article.get("updated", "")
+        article.get("updated", "Unknown date")
     )
 
-    description = ""
+    description += (
+        f"<p><strong>Published:</strong> "
+        f"{pub_date}</p>"
+    )
 
     if pub_date:
         description += f"<p><strong>Published:</strong> {pub_date}</p>"
@@ -110,9 +113,9 @@ for article_data in articles[:50]:
 
         summary = article.summary
 
-        if len(summary) > 300:
+        if len(summary) > 200:
             summary = (
-                summary[:300]
+                summary[:200]
                 .rsplit(" ", 1)[0]
                 + "..."
             )
@@ -125,8 +128,19 @@ for article_data in articles[:50]:
 
     fe.description(description)
 
-    if article.get("published_parsed"):
-        fe.pubDate(article.published_parsed)
+    from datetime import datetime
+    date_struct = (
+        article.get("published_parsed")
+        or article.get("updated_parsed")
+    )
+    
+    if date_struct:
+        try:
+            fe.pubDate(
+                datetime(*date_struct[:6])
+            )
+        except Exception:
+            pass
 
 rss_path = "docs/rss.xml"
 
