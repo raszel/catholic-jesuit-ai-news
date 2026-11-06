@@ -1,1 +1,44 @@
 
+name: Build RSS Feed
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: '0 */12 * * *'
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+
+        with:
+          python-version: '3.11'
+
+      - run: |
+          pip install -r requirements.txt
+
+      - run: |
+          python generate_feed.py
+
+      - name: Commit RSS
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+          git add docs/rss.xml
+
+          git diff --staged --quiet || \
+          git commit -m "Update RSS feed"
+
+          git push
