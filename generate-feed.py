@@ -107,39 +107,40 @@ for article_data in articles[:50]:
             f"<div><strong>Published:</strong> "
             f"{pub_date}</div>"
         )
-    
+
     description += (
         f"<div><strong>Source:</strong> "
         f"{source_name}</div>"
     )
-    
+
     if "summary" in article:
-    
+
         summary = article.summary
-    
+
         if len(summary) > 300:
             summary = (
                 summary[:300]
                 .rsplit(" ", 1)[0]
                 + "..."
             )
-    
+
         description += (
             f"<div style='margin-top:8px;'>"
             f"{summary}"
             "</div>"
         )
-    
+
     description += (
         f"<div style='margin-top:8px;'>"
         f'<a href="{article.link}">'
         "Read full article</a>"
         "</div>"
     )
-    
+
     description += "</div>"
-    
+
     fe.description(description)
+
 
     from datetime import datetime
     date_struct = (
