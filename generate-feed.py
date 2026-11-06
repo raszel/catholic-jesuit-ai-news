@@ -12,22 +12,19 @@ SOURCES = [
 ]
 
 KEYWORDS = [
-    "magnifica humanitas",
     "artificial intelligence",
     "intelligenza artificiale",
-    "machine learning",
+    "magnifica humanitas",
     "generative ai",
-    "large language model",
-    "llm",
-    "digital ethics",
-    "technology ethics",
-    "ethics of technology",
-    "algorithmic",
-    "algorithms",
     "responsible ai",
     "ai governance",
-    "digital humanity",
-    "human dignity"
+    "machine learning",
+    "large language model",
+    "llm",
+    "chatgpt",
+    "artificial general intelligence",
+    "digital ethics"
+
 ]
 
 fg = FeedGenerator()
@@ -61,10 +58,13 @@ for source in SOURCES:
 
         if keyword_match or ai_match:
 
+            print(
+                f"MATCH:: {entry.get('title','')}"
+            )
             articles.append(entry)
+    
+    
     for entry in feed.entries:
-        
-
 
         articles.sort(
             key=lambda x: x.get("published_parsed", ()),
