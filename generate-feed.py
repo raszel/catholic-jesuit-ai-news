@@ -85,7 +85,7 @@ rss_path = "docs/rss.xml"
 
 print(f"Found {len(articles)} matching articles")
 
-fg.rss_file(rss_path)
+fg.rss_file(rss_path, pretty=True)
 
 print(f"Wrote {rss_path}")
 
