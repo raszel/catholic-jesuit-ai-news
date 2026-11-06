@@ -22,8 +22,7 @@ KEYWORDS = [
     "large language model",
     "llm",
     "chatgpt",
-    "artificial general intelligence",
-    "digital ethics"
+    "ai ethics"
 
 ]
 
@@ -61,25 +60,73 @@ for source in SOURCES:
             print(
                 f"MATCH:: {entry.get('title','')}"
             )
-            articles.append(entry)
+            articles.append({
+                "entry": entry,
+                "source": feed.feed.get("title", source)
+            })
     
     
     for entry in feed.entries:
 
+
         articles.sort(
-            key=lambda x: x.get("published_parsed", ()),
+            key=lambda x: x["entry"].get("published_parsed", ()),
             reverse=True
         )
 
-for article in articles[:50]:
+for article_data in articles[:50]:
+
+    article = article_data["entry"]
+    source_name = article_data["source"]
 
     fe = fg.add_entry()
 
     fe.title(article.title)
-    fe.link(href=article.link)
 
+    fe.link(href=article.link)
+    if "media_content" in article:
+
+    image_url = article.media_content[0]["url"]
+
+    fe.enclosure(
+        image_url,
+        0,
+        "image/jpeg"
+    ) 
+
+    pub_date = article.get(
+        "published",
+        article.get("updated", "")
+    )
+
+    description = ""
+
+    if pub_date:
+        description += f"<p><strong>Published:</strong> {pub_date}</p>"
+
+    description += f"<p><strong>Source:</strong> {source_name}</p>"
+    
     if "summary" in article:
-        fe.description(article.summary)
+
+        summary = article.summary
+
+        if len(summary) > 300:
+            summary = (
+                summary[:300]
+                .rsplit(" ", 1)[0]
+                + "..."
+            )
+
+        description += f"<p>{summary}</p>"
+
+    description += (
+        f'<p><a href="{article.link}">Read full article</a></p>'
+    )
+
+    fe.description(description)
+
+    if article.get("published_parsed"):
+        fe.pubDate(article.published_parsed)
 
 rss_path = "docs/rss.xml"
 
