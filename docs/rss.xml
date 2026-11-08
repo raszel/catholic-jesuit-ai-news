@@ -6,7 +6,7 @@
     <description>AI and Magnifica Humanitas related news for Creighton University's Institute of Adaptive Intelligence</description>
     <docs>http://www.rssboard.org/rss-specification</docs>
     <generator>python-feedgen</generator>
-    <lastBuildDate>Sat, 07 Nov 2026 17:32:05 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 08 Nov 2026 04:54:58 +0000</lastBuildDate>
     <item>
       <title>We Need a New Language, a New Imagination, a New Story... and It Won't Come from AI</title>
       <link>https://digitalcommons.lmu.edu/jhe/vol14/iss2/2</link>
@@ -42,6 +42,12 @@
       <link>https://www.vaticannews.va/en/church/news/2026-11/pope-leo-s-visit-brings-questions-of-faith-and-ai-to-ucu.html</link>
       <description>&lt;div style='margin-left:25px;'&gt;&lt;div&gt;&lt;strong&gt;Published:&lt;/strong&gt; Wed, 04 Nov 2026 11:09:00 +0100&lt;/div&gt;&lt;div&gt;&lt;strong&gt;Source:&lt;/strong&gt; Vatican News - English&lt;/div&gt;&lt;div style='margin-top:8px;'&gt;&lt;p&gt;At the Catholic University of Uruguay, students and staff are preparing to welcome Pope Leo XIV, as artificial intelligence poses serious risks to the future of education.&lt;/p&gt;&lt;p&gt;&lt;a...&lt;/div&gt;&lt;div style='margin-top:8px;'&gt;&lt;a href="https://www.vaticannews.va/en/church/news/2026-11/pope-leo-s-visit-brings-questions-of-faith-and-ai-to-ucu.html"&gt;Read full article&lt;/a&gt;&lt;/div&gt;&lt;/div&gt;</description>
       <enclosure url="https://www.vaticannews.va/content/dam/vaticannews/multimedia/2026/novembre/04/universita-cattolica-dell-uruguay-8.jpg/_jcr_content/renditions/cq5dam.thumbnail.cropped.750.422.jpeg" length="0" type="image/jpeg"/>
+    </item>
+    <item>
+      <title>Pope in Uruguay: Never settle for mediocrity, find joy and fulfillment in Christ</title>
+      <link>https://www.vaticannews.va/en/pope/news/2026-11/pope-at-uruguay-prayer-vigil-07-november-2026.html</link>
+      <description>&lt;div style='margin-left:25px;'&gt;&lt;div&gt;&lt;strong&gt;Published:&lt;/strong&gt; Sun, 08 Nov 2026 00:28:00 +0100&lt;/div&gt;&lt;div&gt;&lt;strong&gt;Source:&lt;/strong&gt; Vatican News - English&lt;/div&gt;&lt;div style='margin-top:8px;'&gt;&lt;p&gt;During a prayer vigil in Uruguay, Pope Leo XIV urges the faithful not to settle for a merely decent life or habitual faith, but to give themselves completely to the Lord, finding in Him their true joy and fulfillment.&lt;/p&gt;&lt;p&gt;&lt;a...&lt;/div&gt;&lt;div style='margin-top:8px;'&gt;&lt;a href="https://www.vaticannews.va/en/pope/news/2026-11/pope-at-uruguay-prayer-vigil-07-november-2026.html"&gt;Read full article&lt;/a&gt;&lt;/div&gt;&lt;/div&gt;</description>
+      <enclosure url="https://www.vaticannews.va/content/dam/vaticannews/agenzie/images/srv/2026/11/07/2026-11-07-viaggio-apostolico-in-uruguay---veglia-di-preghiera-a/1794093602965.JPG/_jcr_content/renditions/cq5dam.thumbnail.cropped.750.422.jpeg" length="0" type="image/jpeg"/>
     </item>
   </channel>
 </rss>
