@@ -1,14 +1,37 @@
 import feedparser
+import requests
+from bs4 import BeautifulSoup
 from feedgen.feed import FeedGenerator
 from datetime import datetime
 import re
 
-SOURCES = [
-    "https://www.vaticannews.va/en.rss.xml",
+RSS_SOURCES = [
     "https://www.usccb.org/news.rss",
     "https://digitalcommons.lmu.edu/jhe/recent.rss",
     "https://epublications.marquette.edu/conversations/recent.rss",
     "https://www.jesuits.global/news/feed/"
+]
+
+WEB_FILTERED_SOURCES = [
+        {
+            "name": "Vatican News AI",
+            "url": "https://www.vaticannews.va/en/taglist.cultura-e-societa.Cultura.scienza.intelligenza-artificiale.html"
+        },
+        {
+            "name": "Vatican News Magnifica Hfumanitas",
+            "url": "https://www.vaticannews.va/en/taglist.chiesa-e-religioni.Magistero-pontificio.Magnifica-humanitas.html"
+        }
+]
+
+WEB_UNFILTERED_SOURCES = [
+        {
+            "name": "Initiative on Catholic Social Thought and Public Life Newsroom",
+            "url": "https://catholicsocialthought.georgetown.edu/newsroom"
+        },
+        {    
+            "name": "Association of Jesuit Colleges and Universities Higher Ed News",
+            "url": "https://ajcunet.edu/online-publications/ajcu-higher-ed-news/"
+        }
 ]
 
 KEYWORDS = [
@@ -26,6 +49,115 @@ KEYWORDS = [
 
 ]
 
+def calculate_score(text):
+
+    score = 0
+
+    if "artificial intelligence" in text:
+        score += 10
+
+    if "intelligenza artificiale" in text:
+        score += 10
+
+    if "magnifica humanitas" in text:
+        score += 10
+
+    if "generative ai" in text:
+        score += 8
+
+    if "responsible ai" in text:
+        score += 8
+
+    if "ai governance" in text:
+        score += 8
+
+    if "machine learning" in text:
+        score += 5
+
+    if "large language model" in text:
+        score += 5
+
+    if "llm" in text:
+        score += 3
+
+    if "chatgpt" in text:
+        score += 3
+
+    if "ai ethics" in text:
+        score += 8
+
+    if re.search(r"\bai\b", text):
+        score += 1
+
+    return score
+
+def scrape_web_source(source, curated=False):
+
+    try:
+
+        response = requests.get(
+            source["url"],
+            timeout=30,
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            }
+        )
+
+        soup = BeautifulSoup(
+            response.text,
+            "html.parser"
+        )
+
+        for link in soup.find_all("a", href=True):
+
+            href = link["href"]
+
+            title = link.get_text(strip=True)
+
+            if len(title) < 15:
+                continue
+
+            full_url = requests.compat.urljoin(
+                source["url"],
+                href
+            )
+
+            if curated:
+
+                score = 100
+
+            else:
+
+                text = title.lower()
+
+                score = calculate_score(text)
+
+                if score <= 0:
+                    continue
+
+            articles.append({
+                "entry": {
+                    "title": title,
+                    "link": full_url,
+                    "summary": "",
+                    "published": ""
+                },
+                "source": source["name"],
+                "score": score
+            })
+
+            print(
+                f"WEB MATCH:: {title}"
+            )
+
+    except Exception as e:
+
+        print(
+            f"WEB SOURCE ERROR: "
+            f"{source['name']} - {e}"
+        )
+
+
 fg = FeedGenerator()
 
 fg.title("Catholic & Jesuit AI News")
@@ -36,7 +168,7 @@ fg.description(
 
 articles = []
 
-for source in SOURCES:
+for source in RSS_SOURCES:
 
     feed = feedparser.parse(source)
 
@@ -48,33 +180,70 @@ for source in SOURCES:
             + entry.get("summary", "")
         ).lower()
 
-        keyword_match = any(
-            keyword in text
-            for keyword in KEYWORDS
-        )
+        score = calculate_score(text)
 
-        ai_match = re.search(r"\bai\b", text)
-
-        if keyword_match or ai_match:
+        if score > 0:
 
             print(
                 f"MATCH:: {entry.get('title','')}"
             )
             articles.append({
                 "entry": entry,
-                "source": feed.feed.get("title", source)
+                "source": feed.feed.get("title", source),
+                "score": score
             })
     
-    
-    for entry in feed.entries:
 
+for source in WEB_FILTERED_SOURCES:
+    scrape_web_source(source, curated=True)
 
-        articles.sort(
-            key=lambda x: x["entry"].get("published_parsed", ()),
-            reverse=True
+for source in WEB_UNFILTERED_SOURCES:
+    scrape_web_source(source, curated=False)
+
+articles.sort(
+    key=lambda x: (
+        x.get("score", 0),
+        x["entry"].get(
+            "published_parsed",
+            ()
+        )
+    ),
+    reverse=True
+)
+
+SOURCE_LIMITS = {
+    "Vatican News AI": 5,
+    "Vatican News Magnifica Humanitas": 5
+}
+
+source_counts = {}
+filtered_articles = []
+
+for article in articles:
+
+    source = article["source"]
+
+    limit = SOURCE_LIMITS.get(
+        source,
+        999
+    )
+
+    current_count = source_counts.get(
+        source,
+        0
+    )
+
+    if current_count < limit:
+
+        filtered_articles.append(
+            article
         )
 
-for article_data in articles[:50]:
+        source_counts[source] = (
+            current_count + 1
+        )
+
+for article_data in filtered_articles[:50]:
 
     article = article_data["entry"]
     source_name = article_data["source"]
@@ -112,7 +281,7 @@ for article_data in articles[:50]:
 
     description += (
         f"<div><strong>Source:</strong> "
-        f"{source_name}</div>"
+        f<em>"{source_name}</div>"</em>
     )
 
     if "summary" in article:
