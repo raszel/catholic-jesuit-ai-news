@@ -89,7 +89,7 @@ def calculate_score(text):
     if re.search(r"\bai\b", text):
         score += 1
 
-    if "Jesuit" in text:
+    if "jesuit" in text:
         score += 3
 
     if "catholic" in text:
@@ -102,6 +102,36 @@ def calculate_score(text):
         score += 5
 
     return score
+
+def get_image(url):
+
+    try:
+
+        response = requests.get(
+            url,
+            timeout=20,
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            }
+        )
+
+        soup = BeautifulSoup(
+            response.text,
+            "html.parser"
+        )
+
+        image = soup.find(
+            "meta",
+            property="og:image"
+        )
+
+        if image:
+            return image["content"]
+
+    except Exception:
+        pass
+
+    return None
 
 def scrape_web_source(source, curated=False):
 
@@ -140,6 +170,10 @@ def scrape_web_source(source, curated=False):
                 href
             )
 
+            image_url = get_image(
+                full_url
+            )   
+
             if curated:
 
                 score = 50
@@ -158,7 +192,8 @@ def scrape_web_source(source, curated=False):
                     "title": title,
                     "link": full_url,
                     "summary": "",
-                    "published": ""
+                    "published": "",
+                    "image": image_url
                 },
                 "source": source["name"],
                 "score": score
@@ -311,18 +346,69 @@ for article_data in filtered_articles[:50]:
             image_url,
             0,
             "image/jpeg"
-        ) 
+        )
+        
 
     pub_date = article.get(
         "published",
         article.get("updated", "Unknown date")
     )
 
-    description = "<div style='margin-left:25px;font-size:"16px";'>"
+    image_html = ""
 
+    if isinstance(article, dict):
+    
+        image_url = article.get("image")
+    
+        if image_url:
+    
+            image_html = (
+                f'<img src="{image_url}" '
+                'style="width:100px;'
+                'height:auto;'
+                'float:right;'
+                'margin-left:10px;'
+                'margin-bottom:5px;'
+                'border-radius:4px;">'
+            )
+
+# DESCRIPTION BLOCK    
     description = (
-    f"<div style='margin-left:20px;font-size:"16px";'><strong>{article_title}</strong></div>"
+        f"<div style='margin-left:20px;"
+        f"font-size:18px;"
+        f"margin-bottom:6px;'>"
+        f"<div><strong>{article_title}</strong></div>"
+        f"</div>"
     )
+
+    description += (
+    "<div style='margin-left:25px;font-size:16px;'>"
+    )
+
+
+# getting the images, if there are any to get:
+    if image_html:
+        description += image_html
+    
+    if (
+        hasattr(article, "media_content")
+        and article.media_content
+    ):
+        image_url = article.media_content[0]["url"]
+
+        image_html = (
+            f'<img src="{image_url}" '
+            'style="width:100px;'
+            'height:auto;'
+            'float:right;'
+            'margin-left:10px;'
+            'margin-bottom:5px;'
+            'border-radius:4px;">'
+        )
+    
+        description += image_html
+    
+
     
     if pub_date:
         description += (
@@ -357,12 +443,10 @@ for article_data in filtered_articles[:50]:
         )
 
     description += (
-        f"<div style='margin-top:8px;font-size:16px;margin-left:25px;'>"
-        f'<a href="{article_link}">'
-        <em>"Read full article</em></a>"
+        f"<div style='margin-top:8px;font-size:12px;'>"
+        f'<a href="{article_link}"><em>Read full article</em></a>'
         "</div>"
     )
-
 
     description += "</div>"
 
