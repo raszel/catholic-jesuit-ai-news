@@ -81,7 +81,9 @@ for article_data in articles[:50]:
 
     fe = fg.add_entry()
 
-    fe.title(article.title)
+    fe.title(
+        f"[{source_name}] {article.title}"
+    )
 
     fe.link(href=article.link)
     
@@ -137,12 +139,11 @@ for article_data in articles[:50]:
         "</div>"
     )
 
+
     description += "</div>"
 
     fe.description(description)
 
-
-    from datetime import datetime
     date_struct = (
         article.get("published_parsed")
         or article.get("updated_parsed")
