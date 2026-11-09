@@ -88,16 +88,16 @@ def calculate_score(text):
 
     if re.search(r"\bai\b", text):
         score += 1
-		
+
     if "Jesuit" in text:
         score += 3
-		
+
     if "catholic" in text:
         score += 2
-		
+
     if "ignatian" in text:
         score += 3
-		
+
     if "human dignity" in text:
         score += 5
 
@@ -125,10 +125,10 @@ def scrape_web_source(source, curated=False):
             href = link["href"]
             
             if ".html" not in href:
-			    continue
+                continue
                 
             if "/en/" not in href:
-			    continue
+                continue
 
             title = link.get_text(strip=True)
 
