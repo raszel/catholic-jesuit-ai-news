@@ -92,7 +92,7 @@ def calculate_score(text):
         score += 8
 
     if "basketball" in text:
-    score -= 20
+        score -= 20
 
     if "ncaa" in text:
         score -= 20
