@@ -139,11 +139,19 @@ def get_image(url):
 
         if image:
             return image["content"]
+                tag = soup.find(
+            "meta",
+            property="og:description"
+        )
+
+        if tag:
+            return tag.get("content", "")
 
     except Exception:
         pass
 
-    return None
+    return ""
+
 
 # defining the parameters for scraping the web sources including to ignore irrelevant links in the webpages
 def scrape_web_source(source, curated=False):
@@ -185,7 +193,11 @@ def scrape_web_source(source, curated=False):
 
             image_url = get_image(
                 full_url
-            )   
+            )
+
+            summary = get_description(
+                full_url
+            )
 
             # articles from the already filtered web sources get an automatic score of 50
             if curated:
@@ -205,7 +217,7 @@ def scrape_web_source(source, curated=False):
                 "entry": {
                     "title": title,
                     "link": full_url,
-                    "summary": "",
+                    "summary": summary,
                     "published": "",
                     "image": image_url
                 },
@@ -441,10 +453,10 @@ for article_data in filtered_articles[:50]:
             else article.summary
         )
 
-        # if the text is longer than 300 characters, cut it off at 300, then add an ellipses and a link to read the rest of the article text
-        if len(summary) > 300:
+        # if the text is longer than 200 characters, cut it off at 200, then add an ellipses and a link to read the rest of the article text
+        if len(summary) > 200:
             summary = (
-                summary[:300]
+                summary[:200]
                 .rsplit(" ", 1)[0]
                 + "..."
             )
