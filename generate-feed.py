@@ -268,11 +268,23 @@ for article_data in filtered_articles[:50]:
 
     fe = fg.add_entry()
 
-    fe.title(
-        f"[{source_name}] {article.title}"
+    article_title = (
+        article.get("title")
+        if isinstance(article, dict)
+        else article.title
     )
 
-    fe.link(href=article.link)
+    fe.title(
+        f"[{source_name}] {article_title}"
+    )
+
+    article_link = (
+        article.get("link")
+        if isinstance(article, dict)
+        else article.link
+    )
+
+    fe.link(href=article_link)
     
     if "media_content" in article:
         
@@ -304,7 +316,11 @@ for article_data in filtered_articles[:50]:
 
     if "summary" in article:
 
-        summary = article.summary
+        summary = (
+            article.get("summary", "")
+            if isinstance(article, dict)
+            else article.summary
+        )
 
         if len(summary) > 300:
             summary = (
