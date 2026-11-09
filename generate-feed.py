@@ -5,6 +5,7 @@ from feedgen.feed import FeedGenerator
 from datetime import datetime
 import re
 
+# defining the RSS sources that will require filtering:
 RSS_SOURCES = [
     "https://www.usccb.org/news.rss",
     "https://digitalcommons.lmu.edu/jhe/recent.rss",
@@ -12,6 +13,7 @@ RSS_SOURCES = [
     "https://www.jesuits.global/news/feed/"
 ]
 
+# defining the web sources that already have relevant imposed filters/tags on them and don't require additional filtering for relevance
 WEB_FILTERED_SOURCES = [
         {
             "name": "Vatican News AI",
@@ -23,6 +25,7 @@ WEB_FILTERED_SOURCES = [
         }
 ]
 
+# defining general web sources that will require additional filtering for relevance
 WEB_UNFILTERED_SOURCES = [
         {
             "name": "Initiative on Catholic Social Thought and Public Life Newsroom",
@@ -34,6 +37,7 @@ WEB_UNFILTERED_SOURCES = [
         }
 ]
 
+# setting the keywords to search for within the articles
 KEYWORDS = [
     "artificial intelligence",
     "intelligenza artificiale",
@@ -49,6 +53,7 @@ KEYWORDS = [
 
 ]
 
+# defining how the scoring is calculated based on usage of certain words
 def calculate_score(text):
 
     score = 0
@@ -86,6 +91,7 @@ def calculate_score(text):
     if "ai ethics" in text:
         score += 8
 
+    # only returns "ai" as a standalone word, not in the middle of words like campaign, etc
     if re.search(r"\bai\b", text):
         score += 1
 
@@ -103,6 +109,7 @@ def calculate_score(text):
 
     return score
 
+# retrieving images, if there are any, from the articles
 def get_image(url):
 
     try:
@@ -133,6 +140,7 @@ def get_image(url):
 
     return None
 
+# defining the parameters for scraping the web sources including to ignore irrelevant links in the webpages
 def scrape_web_source(source, curated=False):
 
     try:
@@ -174,6 +182,7 @@ def scrape_web_source(source, curated=False):
                 full_url
             )   
 
+            # articles from the already filtered web sources get an automatic score of 50
             if curated:
 
                 score = 50
@@ -210,7 +219,7 @@ def scrape_web_source(source, curated=False):
             f"{source['name']} - {e}"
         )
 
-
+# building the feed
 fg = FeedGenerator()
 
 fg.title("Catholic & Jesuit AI News")
@@ -221,6 +230,7 @@ fg.description(
 
 articles = []
 
+# naming the metadata contents from RSS-sourced articles
 for source in RSS_SOURCES:
 
     feed = feedparser.parse(source)
@@ -246,10 +256,11 @@ for source in RSS_SOURCES:
                 "score": score
             })
     
-
+# scraping and naming the metadata from the filtered web sources, giving the auto-score of 50 due to being from an already-curated list
 for source in WEB_FILTERED_SOURCES:
     scrape_web_source(source, curated=True)
 
+# scraping and naming the metadata from the unfiltered web sources, including computing the scores of the articles for relevance
 for source in WEB_UNFILTERED_SOURCES:
     scrape_web_source(source, curated=False)
 
@@ -264,6 +275,7 @@ articles.sort(
     reverse=True
 )
 
+# setting a limit of no more than 5 articles each from the curated web pages so Vatican News doesn't obliterate the feed
 SOURCE_LIMITS = {
     "Vatican News AI": 5,
     "Vatican News Magnifica Humanitas": 5
@@ -272,6 +284,7 @@ SOURCE_LIMITS = {
 source_counts = {}
 filtered_articles = []
 
+# more per-source limits so one source doesn't dominate the feed
 for article in articles:
 
     source = article["source"]
@@ -296,6 +309,7 @@ for article in articles:
             current_count + 1
         )
 
+# selecting which articles to place in the feed
 for article_data in filtered_articles[:50]:
 
     article = article_data["entry"]
@@ -337,7 +351,8 @@ for article_data in filtered_articles[:50]:
     )
 
     fe.link(href=article_link)
-    
+
+    #looking for images in the articles
     if "media_content" in article:
         
         image_url = article.media_content[0]["url"]
@@ -347,7 +362,7 @@ for article_data in filtered_articles[:50]:
             0,
             "image/jpeg"
         )
-        
+       
 
     pub_date = article.get(
         "published",
@@ -373,6 +388,7 @@ for article_data in filtered_articles[:50]:
             )
 
 # DESCRIPTION BLOCK    
+    # article title is bolded and slightly bigger
     description = (
         f"<div style='margin-left:20px;"
         f"font-size:18px;"
@@ -380,7 +396,7 @@ for article_data in filtered_articles[:50]:
         f"<div><strong>{article_title}</strong></div>"
         f"</div>"
     )
-
+    # additional metadata is indented and slightly smaller
     description += (
     "<div style='margin-left:25px;font-size:16px;'>"
     )
@@ -395,7 +411,8 @@ for article_data in filtered_articles[:50]:
         and article.media_content
     ):
         image_url = article.media_content[0]["url"]
-
+        
+        # setting the size and display css of the retrieved image
         image_html = (
             f'<img src="{image_url}" '
             'style="width:100px;'
@@ -408,8 +425,7 @@ for article_data in filtered_articles[:50]:
     
         description += image_html
     
-
-    
+    # formatting the display of the article's metadata  
     if pub_date:
         description += (
             f"<div><strong>Published:</strong> "
@@ -421,6 +437,7 @@ for article_data in filtered_articles[:50]:
         f"<em>{source_name}</em></div>"
     )
 
+    # retrieving the summary or beginning of the article, then displaying it
     if "summary" in article:
 
         summary = (
@@ -429,6 +446,7 @@ for article_data in filtered_articles[:50]:
             else article.summary
         )
 
+        # if the text is longer than 300 characters, cut it off at 300, then add an ellipses and a link to read the rest of the article text
         if len(summary) > 300:
             summary = (
                 summary[:300]
@@ -448,10 +466,14 @@ for article_data in filtered_articles[:50]:
         "</div>"
     )
 
+    # end of description block
     description += "</div>"
+    
 
+# telling the FeedGenerator to write the description block for each entry
     fe.description(description)
 
+# looking for a posted, published, or updated date to use as the date 
     date_struct = (
         article.get("published_parsed")
         or article.get("updated_parsed")
@@ -465,13 +487,16 @@ for article_data in filtered_articles[:50]:
         except Exception:
             pass
 
+# write and post the RSS XML doc
 rss_path = "docs/rss.xml"
 
+# internal success message
 print(f"Found {len(articles)} matching articles")
 
+# structures the output RSS in a nice way
 fg.rss_file(rss_path, pretty=True)
 
+# internal success message
 print(f"Wrote {rss_path}")
-
 
 print("RSS feed generated.")
