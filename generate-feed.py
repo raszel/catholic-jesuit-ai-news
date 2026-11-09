@@ -1,4 +1,4 @@
-import feedparser
+fimport feedparser
 import requests
 from bs4 import BeautifulSoup
 from feedgen.feed import FeedGenerator
@@ -91,9 +91,26 @@ def calculate_score(text):
     if "ai ethics" in text:
         score += 8
 
+    if "basketball" in text:
+    score -= 20
+
+    if "ncaa" in text:
+        score -= 20
+    
+    if "football" in text:
+        score -= 20
+    
+    if "baseball" in text:
+        score -= 20
+    
+    if "athletics" in text:
+        score -= 20
+    
+    if "volleyball" in text:
+        score -= 20
     # only returns "ai" as a standalone word, not in the middle of words like campaign, etc
-    if re.search(r"\bai\b", text):
-        score += 1
+    # if re.search(r"\bai\b", text):
+        # score += 1
 
     return score
 
@@ -368,12 +385,12 @@ for article_data in filtered_articles[:50]:
     
             image_html = (
                 f'<img src="{image_url}" '
-                'style="width:100px;'
-                'height:auto;'
+                'style="width:75px !important;'
+                'max-width:75px !important;'
+                'height:auto !important;'
                 'float:right;'
-                'margin-left:10px;'
-                'margin-bottom:5px;'
-                'border-radius:4px;">'
+                'margin-left:8px;'
+                'margin-bottom:5px;">'
             )
 
 # DESCRIPTION BLOCK    
@@ -396,12 +413,12 @@ for article_data in filtered_articles[:50]:
         # setting the size and display css of the retrieved image
         image_html = (
             f'<img src="{image_url}" '
-            'style="width:100px;'
-            'height:auto;'
+            'style="width:75px !important;'
+            'max-width:75px !important;'
+            'height:auto !important;'
             'float:right;'
-            'margin-left:10px;'
-            'margin-bottom:5px;'
-            'border-radius:4px;">'
+            'margin-left:8px;'
+            'margin-bottom:5px;'"
         )
     
         description += image_html
