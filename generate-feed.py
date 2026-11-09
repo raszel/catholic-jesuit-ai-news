@@ -377,14 +377,6 @@ for article_data in filtered_articles[:50]:
             )
 
 # DESCRIPTION BLOCK    
-    # article title is bolded and slightly bigger
-    #description = (
-        #f"<div style='margin-left:20px;"
-        #f"font-size:18px;"
-        #f"margin-bottom:6px;'>"
-        #f"<div><strong>{article_title}</strong></div>"
-        #f"</div>"
-    #)
     # metadata is indented and slightly smaller
     description = (
     "<div style='margin-left:30px;font-size:16px;'>"
@@ -420,11 +412,6 @@ for article_data in filtered_articles[:50]:
             f"<div><strong>Published:</strong> "
             f"{pub_date}</div>"
         )
-
-    description += (
-        f"<div><strong>Article Source:</strong> "
-        f"<em>{source_name}</em></div>"
-    )
 
     # retrieving the summary or beginning of the article, then displaying it
     if "summary" in article:
