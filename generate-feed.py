@@ -1,4 +1,4 @@
-fimport feedparser
+import feedparser
 import requests
 from bs4 import BeautifulSoup
 from feedgen.feed import FeedGenerator
