@@ -93,7 +93,7 @@ def calculate_score(text):
 		score += 3
 
     if "catholic" in text:
-		score+= 2
+		score += 2
 
     if "ignatian" in text:
 		score += 3
