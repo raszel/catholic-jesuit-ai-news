@@ -137,9 +137,11 @@ def get_image(url):
             property="og:image"
         )
 
+
         if image:
             return image["content"]
-                tag = soup.find(
+        
+        tag = soup.find(
             "meta",
             property="og:description"
         )
