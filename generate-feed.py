@@ -195,6 +195,8 @@ def scrape_web_source(source, curated=False):
                 full_url
             )
 
+            print(f"IMAGE URL: {image_url}")
+            
             summary = get_description(
                 full_url
             )
