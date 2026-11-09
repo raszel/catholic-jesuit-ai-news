@@ -266,6 +266,23 @@ for article_data in filtered_articles[:50]:
     article = article_data["entry"]
     source_name = article_data["source"]
 
+    article_title = (
+        article.get("title")
+        if isinstance(article, dict)
+        else article.title
+    )
+
+    article_link = (
+        article.get("link")
+        if isinstance(article, dict)
+        else article.link
+    )
+    
+    article_summary = (
+        article.get("summary", "")
+        if isinstance(article, dict)
+        else article.get("summary", "")
+    )
     fe = fg.add_entry()
 
     article_title = (
@@ -337,7 +354,7 @@ for article_data in filtered_articles[:50]:
 
     description += (
         f"<div style='margin-top:8px;'>"
-        f'<a href="{article.link}">'
+        f'<a href="{article_link}">'
         "Read full article</a>"
         "</div>"
     )
