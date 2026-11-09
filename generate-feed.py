@@ -318,8 +318,12 @@ for article_data in filtered_articles[:50]:
         article.get("updated", "Unknown date")
     )
 
-    description = "<div style='margin-left:25px;'>"
+    description = "<div style='margin-left:25px;font-size:"16px";'>"
 
+    description = (
+    f"<div style='margin-left:20px;font-size:"16px";'><strong>{article_title}</strong></div>"
+    )
+    
     if pub_date:
         description += (
             f"<div><strong>Published:</strong> "
@@ -328,7 +332,7 @@ for article_data in filtered_articles[:50]:
 
     description += (
         f"<div><strong>Source:</strong> "
-        f"{source_name}</div>"
+        f"<em>{source_name}</em></div>"
     )
 
     if "summary" in article:
@@ -353,9 +357,9 @@ for article_data in filtered_articles[:50]:
         )
 
     description += (
-        f"<div style='margin-top:8px;'>"
+        f"<div style='margin-top:8px;font-size:16px;margin-left:25px;'>"
         f'<a href="{article_link}">'
-        "Read full article</a>"
+        <em>"Read full article</em></a>"
         "</div>"
     )
 
