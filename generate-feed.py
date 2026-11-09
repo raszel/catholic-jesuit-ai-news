@@ -18,7 +18,7 @@ WEB_FILTERED_SOURCES = [
             "url": "https://www.vaticannews.va/en/taglist.cultura-e-societa.Cultura.scienza.intelligenza-artificiale.html"
         },
         {
-            "name": "Vatican News Magnifica Hfumanitas",
+            "name": "Vatican News Magnifica Humanitas",
             "url": "https://www.vaticannews.va/en/taglist.chiesa-e-religioni.Magistero-pontificio.Magnifica-humanitas.html"
         }
 ]
@@ -89,6 +89,18 @@ def calculate_score(text):
     if re.search(r"\bai\b", text):
         score += 1
 
+    if "Jesuit" in text:
+	score += 3
+
+    if "catholic" in text:
+	score+= 2
+
+    if "ignatian" in text:
+	score += 3
+
+    if "human dignity" in text:
+	score += 5
+
     return score
 
 def scrape_web_source(source, curated=False):
@@ -111,6 +123,12 @@ def scrape_web_source(source, curated=False):
         for link in soup.find_all("a", href=True):
 
             href = link["href"]
+            
+            if ".html" not in href:
+            	continue
+                
+            if "/en/" not in href:
+		        continue
 
             title = link.get_text(strip=True)
 
@@ -124,7 +142,7 @@ def scrape_web_source(source, curated=False):
 
             if curated:
 
-                score = 100
+                score = 50
 
             else:
 
@@ -281,7 +299,7 @@ for article_data in filtered_articles[:50]:
 
     description += (
         f"<div><strong>Source:</strong> "
-        f<em>"{source_name}</div>"</em>
+        f<em>"{source_name}</em></div>"
     )
 
     if "summary" in article:
