@@ -389,8 +389,9 @@ for article_data in filtered_articles[:50]:
                 'max-width:75px !important;'
                 'height:auto !important;'
                 'float:right;'
-                'margin-left:8px;'
-                'margin-bottom:5px;">'
+                'margin-left:10px;'
+                'margin-bottom:5px;'
+                'border-radius:4px;">'
             )
 
 # DESCRIPTION BLOCK    
@@ -417,8 +418,9 @@ for article_data in filtered_articles[:50]:
             'max-width:75px !important;'
             'height:auto !important;'
             'float:right;'
-            'margin-left:8px;'
-            'margin-bottom:5px;'"
+            'margin-left:10px;'
+            'margin-bottom:5px;'
+            'border-radius:4px;">'
         )
     
         description += image_html
