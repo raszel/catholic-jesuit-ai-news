@@ -95,18 +95,6 @@ def calculate_score(text):
     if re.search(r"\bai\b", text):
         score += 1
 
-    if "jesuit" in text:
-        score += 3
-
-    if "catholic" in text:
-        score += 2
-
-    if "ignatian" in text:
-        score += 3
-
-    if "human dignity" in text:
-        score += 5
-
     return score
 
 # retrieving images, if there are any, from the articles
@@ -245,7 +233,7 @@ for source in RSS_SOURCES:
 
         score = calculate_score(text)
 
-        if score > 0:
+        if score >= 5:
 
             print(
                 f"MATCH:: {entry.get('title','')}"
@@ -340,6 +328,7 @@ for article_data in filtered_articles[:50]:
         else article.title
     )
 
+    #have the entry display the source in brackets and then the article title
     fe.title(
         f"[{source_name}] {article_title}"
     )
@@ -389,16 +378,16 @@ for article_data in filtered_articles[:50]:
 
 # DESCRIPTION BLOCK    
     # article title is bolded and slightly bigger
+    #description = (
+        #f"<div style='margin-left:20px;"
+        #f"font-size:18px;"
+        #f"margin-bottom:6px;'>"
+        #f"<div><strong>{article_title}</strong></div>"
+        #f"</div>"
+    #)
+    # metadata is indented and slightly smaller
     description = (
-        f"<div style='margin-left:20px;"
-        f"font-size:18px;"
-        f"margin-bottom:6px;'>"
-        f"<div><strong>{article_title}</strong></div>"
-        f"</div>"
-    )
-    # additional metadata is indented and slightly smaller
-    description += (
-    "<div style='margin-left:25px;font-size:16px;'>"
+    "<div style='margin-left:30px;font-size:16px;'>"
     )
 
 
@@ -433,7 +422,7 @@ for article_data in filtered_articles[:50]:
         )
 
     description += (
-        f"<div><strong>Source:</strong> "
+        f"<div><strong>Article Source:</strong> "
         f"<em>{source_name}</em></div>"
     )
 
@@ -461,7 +450,7 @@ for article_data in filtered_articles[:50]:
         )
 
     description += (
-        f"<div style='margin-top:8px;font-size:12px;'>"
+        f"<div style='margin-top:8px;margin-bottom:8px;font-size:12px;'>"
         f'<a href="{article_link}"><em>Read full article</em></a>'
         "</div>"
     )
