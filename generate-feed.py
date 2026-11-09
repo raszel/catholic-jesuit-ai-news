@@ -88,7 +88,7 @@ def calculate_score(text):
 
     if re.search(r"\bai\b", text):
         score += 1
-	
+		
 	if "Jesuit" in text:
 		score += 3
 		
