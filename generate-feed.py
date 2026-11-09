@@ -90,16 +90,16 @@ def calculate_score(text):
         score += 1
 
     if "Jesuit" in text:
-	score += 3
+		score += 3
 
     if "catholic" in text:
-	score+= 2
+		score+= 2
 
     if "ignatian" in text:
-	score += 3
+		score += 3
 
     if "human dignity" in text:
-	score += 5
+		score += 5
 
     return score
 
