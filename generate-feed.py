@@ -14,7 +14,12 @@ RSS_SOURCES = [
         "homepage_link": "https://www.usccb.org/news"
     },
     {
-        "name": "https://epublications.marquette.edu/conversations/recent.rss",
+        "name": "Conversations on Jesuit Higher Education",
+        "url": "https://epublications.marquette.edu/conversations/recent.rss",
+        "homepage_link": "https://epublications.marquette.edu/conversations/"
+    },
+    {
+        "name": "The Society of Jesus",
         "url": "https://www.jesuits.global/news/feed/",
         "homepage_link": "https://www.jesuits.global/news/"
     },
@@ -48,7 +53,7 @@ WEB_UNFILTERED_SOURCES = [
         },
         {    
             "name": "Association of Jesuit Colleges and Universities Higher Ed News",
-            "url": "https://ajcunet.edu/online-publications/ajcu-higher-ed-news/",
+            "url": "https://us11.campaign-archive.com/home/?u=f91b904c7741ce1e7593e4b14&id=414b33c638",
             "homepage_link": "https://ajcunet.edu/online-publications/ajcu-higher-ed-news/"
         },
         {
@@ -299,7 +304,91 @@ def scrape_web_source(source, curated=False):
             "html.parser"
         )
 
-        for link in soup.find_all("a", href=True):
+        
+        if source["name"] == "Vatican News":
+        
+            article_sections = soup.find_all(
+                "section",
+                class_="content__teaser content__teaser--hasSidebar"
+            )
+        
+            links = []
+        
+            for section in article_sections:
+        
+                link = section.find("a", href=True)
+        
+                if link:
+                    links.append(link)
+        
+        elif source["name"] == "Creighton University Media Coverage":
+
+            container = soup.find(
+                class_="cards-grid columns-3"
+            )
+        
+            if container:
+                links = container.find_all(
+                    "a",
+                    href=True
+                )
+            else:
+                links = []
+        
+        elif source["name"] == "Creighton University News":
+        
+            container = soup.find(
+                class_="views-infinite-scroll-content-wrapper clearfix"
+            )
+        
+            if container:
+                links = container.find_all(
+                    "a",
+                    href=True
+                )
+            else:
+                links = []
+        
+        elif source["name"] == (
+            "Association of Jesuit Colleges and Universities Higher Ed News"
+        ):
+        
+            container = soup.find(
+                id="archive-list"
+            )
+        
+            if container:
+                links = container.find_all(
+                    "a",
+                    href=True
+                )
+            else:
+                links = []
+        
+        elif source["name"] == (
+            "Initiative on Catholic Social Thought and Public Life Newsroom"
+        ):
+        
+            container = soup.find(
+                id="news-results"
+            )
+        
+            if container:
+                links = container.find_all(
+                    "a",
+                    href=True
+                )
+            else:
+                links = []
+        
+        else:
+        
+            links = soup.find_all(
+                "a",
+                href=True
+            )
+        
+        for link in links:
 
             href = link["href"]
             
@@ -308,6 +397,7 @@ def scrape_web_source(source, curated=False):
                 
             if "/en/" not in href:
                 continue
+
 
             title = link.get_text(strip=True)
 
@@ -343,7 +433,23 @@ def scrape_web_source(source, curated=False):
             # articles from the already filtered web sources get an automatic score of 50
             if curated:
 
-                score = 50
+                text = title.lower()
+            
+                score = calculate_score(text)
+            
+                if score <= 0:
+            
+                    if not (
+                        "ai" in text
+                        or "magnifica" in text
+                        or "human dignity" in text
+                        or "technology" in text
+                        or "innovation" in text
+                    ):
+                        continue
+            
+                score += 50
+
 
             else:
 
@@ -425,6 +531,29 @@ for source in WEB_FILTERED_SOURCES:
 # scraping and naming the metadata from the unfiltered web sources, including computing the scores of the articles for relevance
 for source in WEB_UNFILTERED_SOURCES:
     scrape_web_source(source, curated=False)
+
+seen_links = set()
+unique_articles = []
+
+for article in articles:
+
+    try:
+        link = article["entry"]["link"]
+
+    except:
+
+        link = article["entry"].link
+
+    if link in seen_links:
+        continue
+
+    seen_links.add(link)
+
+    unique_articles.append(
+        article
+    )
+
+articles = unique_articles
 
 articles.sort(
     key=lambda x: (
@@ -631,8 +760,6 @@ for article_data in filtered_articles[:50]:
 
 # telling the FeedGenerator to write the description block for each entry
     fe.description(description)
-    
-    print(f"WRITING: {article_title}")   
 
     print(f"SUCCESS: {article_title}")
 
