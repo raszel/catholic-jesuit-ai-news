@@ -28,12 +28,12 @@ RSS_SOURCES = [
 # defining the web sources that already have relevant imposed filters/tags on them and don't require additional filtering for relevance
 WEB_FILTERED_SOURCES = [
         {
-            "name": "Vatican News AI",
+            "name": "Vatican News",
             "url": "https://www.vaticannews.va/en/taglist.cultura-e-societa.Cultura.scienza.intelligenza-artificiale.html",
             "homepage_link": "https://www.vaticannews.va/en"
         },
         {
-            "name": "Vatican News Magnifica Humanitas",
+            "name": "Vatican News",
             "url": "https://www.vaticannews.va/en/taglist.chiesa-e-religioni.Magistero-pontificio.Magnifica-humanitas.html",
             "homepage_link": "https://www.vaticannews.va/en"
         }
