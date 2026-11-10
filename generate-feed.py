@@ -324,11 +324,13 @@ def scrape_web_source(source, curated=False):
                 )
                 print(
                     "VATICAN TEXT:",
-                    link.get_text(strip=True)
+                    repr(link.get_text(strip=True))
                 )
         
                 if link:
                     links.append(link)
+                
+                print(section.prettify()[:1000])
         
         elif source["name"] == "Creighton University Media Coverage":
 
@@ -417,11 +419,14 @@ def scrape_web_source(source, curated=False):
                 # continue
 
 
-            title = link.get_text(strip=True)
+            title = (
+                link.get("title")
+                or link.get_text(strip=True)
+            )
 
-#            print(
-#                f"VATICAN TITLE: {title}"
-#            )
+            print(
+                f"VATICAN TITLE: {title}"
+            )
 
             if len(title) < 15:
                 continue
@@ -633,7 +638,6 @@ for article in articles:
 for article_data in filtered_articles[:50]:
 
     article = article_data["entry"]
-    print(type(article))
     source_name = article_data["source"]
     homepage_link = article_data["homepage_link"]
 
