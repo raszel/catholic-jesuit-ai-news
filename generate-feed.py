@@ -172,12 +172,11 @@ def get_description(url):
 
         if tag:
             return tag.get("content", "")
+     
+     except Exception:
+         pass
          
-
-    except Exception:
-        pass
-
-    return ""
+     return ""
 
 
 # defining the parameters for scraping the web sources including to ignore irrelevant links in the webpages
