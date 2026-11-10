@@ -391,15 +391,24 @@ def scrape_web_source(source, curated=False):
         for link in links:
 
             href = link["href"]
+
+            print(
+                f"SOURCE={source['name']} "
+                f"HREF={href}"
+            )
             
-            if ".html" not in href:
-                continue
+            # if ".html" not in href:
+                # continue
                 
-            if "/en/" not in href:
-                continue
+            # if "/en/" not in href:
+                # continue
 
 
             title = link.get_text(strip=True)
+
+#            print(
+#                f"VATICAN TITLE: {title}"
+#            )
 
             if len(title) < 15:
                 continue
