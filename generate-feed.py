@@ -116,7 +116,7 @@ def calculate_score(text):
 
 # retrieving images, if there are any, from the articles
 def get_image(url):
-
+    
     try:
 
         response = requests.get(
