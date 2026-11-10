@@ -139,8 +139,32 @@ def get_image(url):
 
 
         if image:
-            return image["content"]
-        
+            return image["content"] 
+
+    
+    except Exception:
+        pass
+
+    return ""
+
+
+def get_description(url):
+
+     try:
+
+        response = requests.get(
+            url,
+            timeout=20,
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            }
+        )
+
+        soup = BeautifulSoup(
+            response.text,
+            "html.parser"
+        )
+
         tag = soup.find(
             "meta",
             property="og:description"
@@ -148,6 +172,7 @@ def get_image(url):
 
         if tag:
             return tag.get("content", "")
+         
 
     except Exception:
         pass
@@ -334,6 +359,7 @@ for article in articles:
 for article_data in filtered_articles[:50]:
 
     article = article_data["entry"]
+    print(type(article))
     source_name = article_data["source"]
 
     article_title = (
@@ -353,6 +379,9 @@ for article_data in filtered_articles[:50]:
         if isinstance(article, dict)
         else article.get("summary", "")
     )
+
+    print(f"WRITING: {article_title}")
+    
     fe = fg.add_entry()
 
     article_title = (
@@ -374,7 +403,15 @@ for article_data in filtered_articles[:50]:
 
     fe.link(href=article_link)
 
-    #looking for images in the articles
+
+       
+
+    pub_date = article.get(
+        "published",
+        article.get("updated", "Unknown date")
+    )
+
+#looking for images in the articles
     if "media_content" in article:
         
         image_url = article.media_content[0]["url"]
@@ -384,14 +421,9 @@ for article_data in filtered_articles[:50]:
             0,
             "image/jpeg"
         )
-       
-
-    pub_date = article.get(
-        "published",
-        article.get("updated", "Unknown date")
-    )
-
+        
     image_html = ""
+
 
     if isinstance(article, dict):
     
@@ -483,20 +515,24 @@ for article_data in filtered_articles[:50]:
 
 # telling the FeedGenerator to write the description block for each entry
     fe.description(description)
+    
+    print(f"WRITING: {article_title}")   
+
+    print(f"SUCCESS: {article_title}")
 
 # looking for a posted, published, or updated date to use as the date 
-    date_struct = (
-        article.get("published_parsed")
-        or article.get("updated_parsed")
-    )
+#    date_struct = (
+#        article.get("published_parsed")
+#        or article.get("updated_parsed")
+#    )
     
-    if date_struct:
-        try:
-            fe.pubDate(
-                datetime(*date_struct[:6])
-            )
-        except Exception:
-            pass
+#    if date_struct:
+#        try:
+#            fe.pubDate(
+#                datetime(*date_struct[:6])
+#            )
+#        except Exception:
+#            pass
 
 # write and post the RSS XML doc
 rss_path = "docs/rss.xml"
