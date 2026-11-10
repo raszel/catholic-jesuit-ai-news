@@ -34,6 +34,14 @@ WEB_UNFILTERED_SOURCES = [
         {    
             "name": "Association of Jesuit Colleges and Universities Higher Ed News",
             "url": "https://ajcunet.edu/online-publications/ajcu-higher-ed-news/"
+        },
+        {
+            "name": "Creighton News",
+            "url": "https://www.creighton.edu/news/"
+        },
+        {
+            "name": "Creighton Media Coverage",
+            "url": "https://www.creighton.edu/about/news-and-events/media-coverage"
         }
 ]
 
@@ -128,7 +136,7 @@ def get_image(url):
         )
 
         soup = BeautifulSoup(
-            response.text,
+            response.content,
             "html.parser"
         )
 
@@ -161,7 +169,7 @@ def get_description(url):
         )
 
         soup = BeautifulSoup(
-            response.text,
+            response.content,
             "html.parser"
         )
 
@@ -193,7 +201,7 @@ def scrape_web_source(source, curated=False):
         )
 
         soup = BeautifulSoup(
-            response.text,
+            response.content,
             "html.parser"
         )
 
@@ -225,6 +233,13 @@ def scrape_web_source(source, curated=False):
             
             summary = get_description(
                 full_url
+            )
+
+            summary = (
+                summary
+                .replace("â", '"')
+                .replace("â", '"')
+                .replace("â", "'")
             )
 
             # articles from the already filtered web sources get an automatic score of 50
