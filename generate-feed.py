@@ -14,14 +14,14 @@ RSS_SOURCES = [
         "homepage_link": "https://www.usccb.org/news"
     },
     {
-        "name": "Jesuit Higher Education: A Journal",
-        "url": "https://digitalcommons.lmu.edu/jhe/recent.rss",
-        "homepage_link": "https://digitalcommons.lmu.edu/jhe/"
-    },
-    {
         "name": "https://epublications.marquette.edu/conversations/recent.rss",
         "url": "https://www.jesuits.global/news/feed/",
         "homepage_link": "https://www.jesuits.global/news/"
+    },
+    {
+        "name": "Jesuit Higher Education: A Journal",
+        "url": "https://digitalcommons.lmu.edu/jhe/recent.rss",
+        "homepage_link": "https://digitalcommons.lmu.edu/jhe/"
     }
 ]
 
@@ -76,7 +76,6 @@ KEYWORDS = [
     "llm",
     "chatgpt",
     "ai ethics"
-
 ]
 
 # defining how the scoring is calculated based on usage of certain words
@@ -114,6 +113,19 @@ def calculate_score(text):
     if "chatgpt" in text:
         score += 3
 
+    if (
+        "creighton" in text
+        and (
+            "artificial intelligence" in text
+            or "magnifica humanitas" in text
+            or "generative ai" in text
+            or "ai ethics" in text
+            or "machine learning" in text
+            or re.search(r"\bai\b", text)
+        )
+    ):
+        score += 20
+
     if "ai ethics" in text:
         score += 8
 
@@ -122,11 +134,14 @@ def calculate_score(text):
 
     if "ncaa" in text:
         score -= 20
-    
-    if "football" in text:
+
+    if "soccer" in text:
         score -= 20
     
     if "baseball" in text:
+        score -= 20
+
+    if "softball" in text:
         score -= 20
     
     if "athletics" in text:
