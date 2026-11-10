@@ -3,25 +3,39 @@ import requests
 from bs4 import BeautifulSoup
 from feedgen.feed import FeedGenerator
 from datetime import datetime
+from email.utils import parsedate_to_datetime
 import re
 
 # defining the RSS sources that will require filtering:
 RSS_SOURCES = [
-    "https://www.usccb.org/news.rss",
-    "https://digitalcommons.lmu.edu/jhe/recent.rss",
-    "https://epublications.marquette.edu/conversations/recent.rss",
-    "https://www.jesuits.global/news/feed/"
+    {
+        "name": "United States Catholic Conference of Bishops News",
+        "url": "https://www.usccb.org/news.rss",
+        "homepage_link": "https://www.usccb.org/news"
+    },
+    {
+        "name": "Jesuit Higher Education: A Journal",
+        "url": "https://digitalcommons.lmu.edu/jhe/recent.rss",
+        "homepage_link": "https://digitalcommons.lmu.edu/jhe/"
+    },
+    {
+        "name": "https://epublications.marquette.edu/conversations/recent.rss",
+        "url": "https://www.jesuits.global/news/feed/",
+        "homepage_link": "https://www.jesuits.global/news/"
+    }
 ]
 
 # defining the web sources that already have relevant imposed filters/tags on them and don't require additional filtering for relevance
 WEB_FILTERED_SOURCES = [
         {
             "name": "Vatican News AI",
-            "url": "https://www.vaticannews.va/en/taglist.cultura-e-societa.Cultura.scienza.intelligenza-artificiale.html"
+            "url": "https://www.vaticannews.va/en/taglist.cultura-e-societa.Cultura.scienza.intelligenza-artificiale.html",
+            "homepage_link": "https://www.vaticannews.va/en"
         },
         {
             "name": "Vatican News Magnifica Humanitas",
-            "url": "https://www.vaticannews.va/en/taglist.chiesa-e-religioni.Magistero-pontificio.Magnifica-humanitas.html"
+            "url": "https://www.vaticannews.va/en/taglist.chiesa-e-religioni.Magistero-pontificio.Magnifica-humanitas.html",
+            "homepage_link": "https://www.vaticannews.va/en"
         }
 ]
 
@@ -29,19 +43,23 @@ WEB_FILTERED_SOURCES = [
 WEB_UNFILTERED_SOURCES = [
         {
             "name": "Initiative on Catholic Social Thought and Public Life Newsroom",
-            "url": "https://catholicsocialthought.georgetown.edu/newsroom"
+            "url": "https://catholicsocialthought.georgetown.edu/newsroom",
+            "homepage_link": "https://catholicsocialthought.georgetown.edu/newsroom"
         },
         {    
             "name": "Association of Jesuit Colleges and Universities Higher Ed News",
-            "url": "https://ajcunet.edu/online-publications/ajcu-higher-ed-news/"
+            "url": "https://ajcunet.edu/online-publications/ajcu-higher-ed-news/",
+            "homepage_link": "https://ajcunet.edu/online-publications/ajcu-higher-ed-news/"
         },
         {
-            "name": "Creighton News",
-            "url": "https://www.creighton.edu/news/"
+            "name": "Creighton University News",
+            "url": "https://www.creighton.edu/news/",
+            "homepage_link": "https://www.creighton.edu/news/"
         },
         {
-            "name": "Creighton Media Coverage",
-            "url": "https://www.creighton.edu/about/news-and-events/media-coverage"
+            "name": "Creighton University Media Coverage",
+            "url": "https://www.creighton.edu/about/news-and-events/media-coverage",
+            "homepage_link": "https://www.creighton.edu/about/news-and-events/media-coverage"
         }
 ]
 
@@ -186,6 +204,67 @@ def get_description(url):
          
      return ""
 
+def format_date(date_string):
+
+    if not date_string:
+        return ""
+
+    try:
+
+        if "T" in date_string:
+            dt = datetime.fromisoformat(
+                date_string
+            )
+
+        else:
+            dt = parsedate_to_datetime(
+                date_string
+            )
+
+        formatted = dt.strftime(
+            "%B %d, %Y %I:%M %p %Z"
+        )
+
+        return formatted.replace(
+            " 0",
+            " "
+        )
+        
+    except Exception:
+        return date_string
+
+def get_publish_date(url):
+
+    try:
+
+        response = requests.get(
+            url,
+            timeout=20,
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            }
+        )
+
+        soup = BeautifulSoup(
+            response.content,
+            "html.parser"
+        )
+
+        tag = soup.find(
+            "meta",
+            property="article:published_time"
+        )
+
+        if tag:
+            return tag.get(
+                "content",
+                ""
+            )
+
+    except Exception:
+        pass
+
+    return ""
 
 # defining the parameters for scraping the web sources including to ignore irrelevant links in the webpages
 def scrape_web_source(source, curated=False):
@@ -235,6 +314,10 @@ def scrape_web_source(source, curated=False):
                 full_url
             )
 
+            publish_date = get_publish_date(
+                full_url
+            )
+
             summary = (
                 summary
                 .replace("â", '"')
@@ -261,10 +344,11 @@ def scrape_web_source(source, curated=False):
                     "title": title,
                     "link": full_url,
                     "summary": summary,
-                    "published": "",
+                    "published": publish_date,
                     "image": image_url
                 },
                 "source": source["name"],
+                "homepage_link": source["homepage_link"],
                 "score": score
             })
 
@@ -293,7 +377,9 @@ articles = []
 # naming the metadata contents from RSS-sourced articles
 for source in RSS_SOURCES:
 
-    feed = feedparser.parse(source)
+    feed = feedparser.parse(
+        source["url"]
+    )
 
     for entry in feed.entries:
 
@@ -312,7 +398,8 @@ for source in RSS_SOURCES:
             )
             articles.append({
                 "entry": entry,
-                "source": feed.feed.get("title", source),
+                "homepage_link": source["homepage_link"],
+                "source": source["name"],
                 "score": score
             })
     
@@ -375,6 +462,7 @@ for article_data in filtered_articles[:50]:
     article = article_data["entry"]
     print(type(article))
     source_name = article_data["source"]
+    homepage_link = article_data["homepage_link"]
 
     article_title = (
         article.get("title")
@@ -423,6 +511,10 @@ for article_data in filtered_articles[:50]:
     pub_date = article.get(
         "published",
         article.get("updated", "Unknown date")
+    )
+    
+    pub_date = format_date(
+        pub_date
     )
 
 #looking for images in the articles
@@ -487,6 +579,19 @@ for article_data in filtered_articles[:50]:
     
         description += image_html
     
+    description += (
+        f"<div><strong>Title:</strong> "
+        f"{article_title}</div>"
+    )
+
+    description += (
+    f"<div><strong>Source:</strong> "
+    f'<a href="{homepage_link}"><em>{source_name}</em></a>'
+    "</div>"
+    )
+    
+ # f'<a href="{article_link}"><em>Read full article</em></a>'
+
     # formatting the display of the article's metadata  
     if pub_date:
         description += (
