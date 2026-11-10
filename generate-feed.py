@@ -317,6 +317,15 @@ def scrape_web_source(source, curated=False):
             for section in article_sections:
         
                 link = section.find("a", href=True)
+
+                print(
+                    "VATICAN LINK:",
+                    link.get("href")
+                )
+                print(
+                    "VATICAN TEXT:",
+                    link.get_text(strip=True)
+                )
         
                 if link:
                     links.append(link)
@@ -326,7 +335,11 @@ def scrape_web_source(source, curated=False):
             container = soup.find(
                 class_="cards-grid columns-3"
             )
-        
+
+            print(
+                f"CONTAINER FOUND: {container is not None}"
+            )
+            
             if container:
                 links = container.find_all(
                     "a",
@@ -485,6 +498,9 @@ def scrape_web_source(source, curated=False):
             print(
                 f"WEB MATCH:: {title}"
             )
+            print (
+                f"SCORE:: {score}"
+            )
 
     except Exception as e:
 
@@ -524,14 +540,19 @@ for source in RSS_SOURCES:
         if score >= 5:
 
             print(
-                f"MATCH:: {entry.get('title','')}"
+                f"RSS MATCH:: {entry.get('title','')}"
             )
+            
             articles.append({
                 "entry": entry,
                 "homepage_link": source["homepage_link"],
                 "source": source["name"],
                 "score": score
             })
+
+            print (
+                f"SCORE:: {score}"
+            )
     
 # scraping and naming the metadata from the filtered web sources, giving the auto-score of 50 due to being from an already-curated list
 for source in WEB_FILTERED_SOURCES:
@@ -577,7 +598,7 @@ articles.sort(
 
 # setting a limit of no more than 5 articles each from the curated web pages so Vatican News doesn't obliterate the feed
 SOURCE_LIMITS = {
-    "Vatican News": 7,
+    "Vatican News": 6,
 }
 
 source_counts = {}
