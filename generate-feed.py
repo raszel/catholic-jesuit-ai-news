@@ -439,8 +439,7 @@ articles.sort(
 
 # setting a limit of no more than 5 articles each from the curated web pages so Vatican News doesn't obliterate the feed
 SOURCE_LIMITS = {
-    "Vatican News AI": 5,
-    "Vatican News Magnifica Humanitas": 5
+    "Vatican News": 7,
 }
 
 source_counts = {}
