@@ -553,21 +553,11 @@ for article_data in filtered_articles[:50]:
         if image_url:
     
             image_html = (
-                f'<img src="{image_url}" '
-                'style="width:75px !important;'
-                'max-width:75px !important;'
-                'height:auto !important;'
-                'float:right;'
-                'margin-left:10px;'
-                'margin-bottom:5px;'
-                'border-radius:4px;">'
+                f'<img src="{image_url}">'
             )
 
 # DESCRIPTION BLOCK    
-    # metadata is indented and slightly smaller
-    description = (
-    "<div style='margin-left:30px;font-size:16px;'>"
-    )
+    description = ("<div>")
 
 
 # getting the images, if there are any to get:
@@ -582,14 +572,7 @@ for article_data in filtered_articles[:50]:
         
         # setting the size and display css of the retrieved image
         image_html = (
-            f'<img src="{image_url}" '
-            'style="width:75px !important;'
-            'max-width:75px !important;'
-            'height:auto !important;'
-            'float:right;'
-            'margin-left:10px;'
-            'margin-bottom:5px;'
-            'border-radius:4px;">'
+            f'<img src="{image_url}">'
         )
     
         description += image_html
@@ -638,7 +621,7 @@ for article_data in filtered_articles[:50]:
         )
 
     description += (
-        f"<div style='margin-top:8px;margin-bottom:8px;font-size:12px;'>"
+        f"<div>"
         f'<a href="{article_link}"><em>Read full article</em></a>'
         "</div>"
     )
