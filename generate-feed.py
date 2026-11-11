@@ -89,10 +89,10 @@ SOURCE_IMAGES = {
     "Jesuit Higher Education: A Journal":
         "https://digitalcommons.lmu.edu/assets/md5images/dedbd2e6046fdb2ff24de649ab0cad4c.gif",
 
-    "USCCB News":
+    "United States Catholic Conference of Bishops News":
         "https://missionsupport.archspm.org/wp-content/uploads/2025/09/USCCB_Logo_H_FullColor_RGB.jpg",
 
-    "AJCU News":
+    "Association of Jesuit Colleges and Universities Higher Ed News":
         "https://ajcunet.edu/wp-content/uploads/2022/09/NEWTRANSPARENTFINALAJCULOGO_07-24-300x166.png"
 }
 
@@ -100,10 +100,10 @@ SOURCE_IMAGE_ALTS = {
     "Jesuit Higher Education: A Journal":
         "Jesuit Higher Education Journal logo",
 
-    "USCCB News":
+    "United States Catholic Conference of Bishops News":
         "United States Catholic Conference of Bishops logo",
 
-    "AJCU News":
+    "Association of Jesuit Colleges and Universities Higher Ed News":
         "AJCU logo"
 }
 
@@ -581,7 +581,11 @@ def scrape_web_source(source, curated=False):
                 image_url = SOURCE_IMAGES.get(
                     source["name"]
                 )
-            
+
+                print(
+                    f"IMAGE FOR {source['name']}: {image_url}"
+                )
+                
                 image_alt = SOURCE_IMAGE_ALTS.get(
                     source["name"],
                     source["name"]
@@ -859,7 +863,24 @@ for article_data in filtered_articles[:50]:
     author = article.get(
         "author",
         ""
-    )   
+    )
+    
+    if (
+        source_name == "Conversations on Jesuit Higher Education"
+    ):
+    
+        if article_summary.startswith("By "):
+    
+            first_line = (
+                article_summary
+                .split("\n")[0]
+                .strip()
+            )
+    
+            author = first_line.replace(
+                "By ",
+                ""
+            )   
 
     pub_date = article.get(
         "published",
