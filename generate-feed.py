@@ -227,12 +227,12 @@ def get_image(url):
         }
 
         if not alt_text:
-    
-        alt_text = (
-            soup.title.get_text(strip=True)
-            if soup.title
-            else ""
-        )
+            
+            alt_text = (
+                soup.title.get_text(strip=True)
+                if soup.title
+                else ""
+            )
 
     
     except Exception:
