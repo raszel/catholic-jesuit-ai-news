@@ -15,8 +15,8 @@ RSS_SOURCES = [
     },
     {
         "name": "Conversations on Jesuit Higher Education",
-        "url": "https://epublications.marquette.edu/conversations/recent.rss",
-        "homepage_link": "https://epublications.marquette.edu/conversations/"
+        "url": "https://conversationsmagazine.org/feed/tagged/artificial-intelligence",
+        "homepage_link": "https://conversationsmagazine.org/"
     },
     {
         "name": "The Society of Jesus",
@@ -80,8 +80,18 @@ KEYWORDS = [
     "large language model",
     "llm",
     "chatgpt",
-    "ai ethics"
+    "ai ethics",
+    "generative software",
+    "prompt"
 ]
+
+SOURCE_IMAGES = {
+    "Jesuit Higher Education: A Journal":
+        "https://digitalcommons.lmu.edu/assets/md5images/dedbd2e6046fdb2ff24de649ab0cad4c.gif",
+
+    "USCCB News":
+        "https://missionsupport.archspm.org/wp-content/uploads/2025/09/USCCB_Logo_H_FullColor_RGB.jpg",
+}
 
 # defining how the scoring is calculated based on usage of certain words
 def calculate_score(text):
@@ -89,13 +99,13 @@ def calculate_score(text):
     score = 0
 
     if "artificial intelligence" in text:
-        score += 10
+        score += 14
 
     if "intelligenza artificiale" in text:
         score += 10
 
     if "magnifica humanitas" in text:
-        score += 10
+        score += 14
 
     if "generative ai" in text:
         score += 8
@@ -507,14 +517,16 @@ def scrape_web_source(source, curated=False):
                 href
             )
 
-            image_url = get_image(
-                full_url
-            )
-
+            image_url = get_image(full_url)
+            
             if not image_url:
-                image_url = get_site_logo(
-                    full_url
+                image_url = get_site_logo(full_url)
+            
+            if not image_url:
+                image_url = SOURCE_IMAGES.get(
+                    source["name"]
                 )
+
 
             print(f"IMAGE URL: {image_url}")
             
