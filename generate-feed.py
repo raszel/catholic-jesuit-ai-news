@@ -318,6 +318,45 @@ def get_author(url):
 
     return ""
 
+from urllib.parse import urlparse
+
+def get_site_logo(url):
+
+    try:
+
+        parsed = urlparse(url)
+
+        base_url = (
+            f"{parsed.scheme}://{parsed.netloc}"
+        )
+
+        response = requests.get(
+            base_url,
+            timeout=20,
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            }
+        )
+
+        soup = BeautifulSoup(
+            response.content,
+            "html.parser"
+        )
+
+        # Open Graph image
+        tag = soup.find(
+            "meta",
+            property="og:image"
+        )
+
+        if tag:
+            return tag.get("content")
+
+    except Exception:
+        pass
+
+    return None
+
 # defining the parameters for scraping the web sources including to ignore irrelevant links in the webpages
 def scrape_web_source(source, curated=False):
 
@@ -472,6 +511,11 @@ def scrape_web_source(source, curated=False):
                 full_url
             )
 
+            if not image_url:
+                image_url = get_site_logo(
+                    full_url
+                )
+
             print(f"IMAGE URL: {image_url}")
             
             summary = get_description(
@@ -481,6 +525,25 @@ def scrape_web_source(source, curated=False):
             publish_date = get_publish_date(
                 full_url
             )
+            published_parsed = None
+
+            if publish_date:
+            
+                try:
+            
+                    published_parsed = (
+                        datetime
+                        .fromisoformat(
+                            publish_date.replace(
+                                "Z",
+                                "+00:00"
+                            )
+                        )
+                        .timetuple()
+                    )
+            
+                except Exception:
+                    pass
 
             author = get_author(
                 full_url
@@ -530,6 +593,7 @@ def scrape_web_source(source, curated=False):
                     "link": full_url,
                     "summary": summary,
                     "published": publish_date,
+                    "published_parsed": published_parsed,
                     "image": image_url
                 },
                 "source": source["name"],
@@ -629,7 +693,7 @@ articles = unique_articles
 
 articles.sort(
     key=lambda x: (
-        x.get("score", 0),
+        x.get("score", 0) * 1000000,
         x["entry"].get(
             "published_parsed",
             ()
@@ -637,7 +701,6 @@ articles.sort(
     ),
     reverse=True
 )
-
 # setting a limit of no more than 5 articles each from the curated web pages so Vatican News doesn't obliterate the feed
 SOURCE_LIMITS = {
     "Vatican News": 6,
