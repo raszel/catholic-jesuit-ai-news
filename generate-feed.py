@@ -224,7 +224,7 @@ def get_image(url):
         return {
             "url": image_url,
             "alt": alt_text
-        } 
+        }
 
         if not alt_text:
     
