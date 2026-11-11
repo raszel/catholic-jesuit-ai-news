@@ -91,6 +91,20 @@ SOURCE_IMAGES = {
 
     "USCCB News":
         "https://missionsupport.archspm.org/wp-content/uploads/2025/09/USCCB_Logo_H_FullColor_RGB.jpg",
+
+    "AJCU News":
+        "https://ajcunet.edu/wp-content/uploads/2022/09/NEWTRANSPARENTFINALAJCULOGO_07-24-300x166.png"
+}
+
+SOURCE_IMAGE_ALTS = {
+    "Jesuit Higher Education: A Journal":
+        "Jesuit Higher Education Journal logo",
+
+    "USCCB News":
+        "United States Catholic Conference of Bishops logo",
+
+    "AJCU News":
+        "AJCU logo"
 }
 
 # defining how the scoring is calculated based on usage of certain words
@@ -191,10 +205,34 @@ def get_image(url):
             "meta",
             property="og:image"
         )
-
-
+        
+        image_url = ""
+        
         if image:
-            return image["content"] 
+            image_url = image.get("content", "")
+        
+        alt_text = ""
+        
+        image_alt = soup.find(
+            "meta",
+            property="og:image:alt"
+        )
+        
+        if image_alt:
+            alt_text = image_alt.get("content", "")
+        
+        return {
+            "url": image_url,
+            "alt": alt_text
+        } 
+
+        if not alt_text:
+    
+        alt_text = (
+            soup.title.get_text(strip=True)
+            if soup.title
+            else ""
+        )
 
     
     except Exception:
@@ -517,7 +555,23 @@ def scrape_web_source(source, curated=False):
                 href
             )
 
-            image_url = get_image(full_url)
+            image_data = get_image(full_url)
+
+            image_url = ""
+            
+            image_alt = ""
+            
+            if image_data:
+            
+                image_url = image_data.get(
+                    "url",
+                    ""
+                )
+            
+                image_alt = image_data.get(
+                    "alt",
+                    ""
+                )
             
             if not image_url:
                 image_url = get_site_logo(full_url)
@@ -526,6 +580,11 @@ def scrape_web_source(source, curated=False):
                 image_url = SOURCE_IMAGES.get(
                     source["name"]
                 )
+
+            image_alt = SOURCE_IMAGE_ALTS.get(
+                source["name"],
+                source["name"]
+            )
 
 
             print(f"IMAGE URL: {image_url}")
@@ -606,7 +665,8 @@ def scrape_web_source(source, curated=False):
                     "summary": summary,
                     "published": publish_date,
                     "published_parsed": published_parsed,
-                    "image": image_url
+                    "image": image_url,
+                    "image_alt": image_alt
                 },
                 "source": source["name"],
                 "homepage_link": source["homepage_link"],
@@ -830,7 +890,8 @@ for article_data in filtered_articles[:50]:
         if image_url:
     
             image_html = (
-                f'<img src="{image_url}">'
+                f'<img src="{image_url}" '
+                f'alt="{image_alt}" >'
             )
 
 # DESCRIPTION BLOCK    
