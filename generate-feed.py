@@ -126,10 +126,9 @@ def calculate_score(text):
             or "generative ai" in text
             or "ai ethics" in text
             or "machine learning" in text
-            or re.search(r"\bai\b", text)
         )
     ):
-        score += 20
+        score += 10
 
     if "ai ethics" in text:
         score += 8
@@ -273,6 +272,39 @@ def get_publish_date(url):
         tag = soup.find(
             "meta",
             property="article:published_time"
+        )
+
+        if tag:
+            return tag.get(
+                "content",
+                ""
+            )
+
+    except Exception:
+        pass
+
+    return ""
+
+def get_author(url):
+
+    try:
+
+        response = requests.get(
+            url,
+            timeout=20,
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            }
+        )
+
+        soup = BeautifulSoup(
+            response.content,
+            "html.parser"
+        )
+
+        tag = soup.find(
+            "meta",
+            attrs={"name": "author"}
         )
 
         if tag:
@@ -450,6 +482,10 @@ def scrape_web_source(source, curated=False):
                 full_url
             )
 
+            author = get_author(
+                full_url
+            )
+            
             summary = (
                 summary
                 .replace("â", '"')
@@ -490,6 +526,7 @@ def scrape_web_source(source, curated=False):
             articles.append({
                 "entry": {
                     "title": title,
+                    "author": author,
                     "link": full_url,
                     "summary": summary,
                     "published": publish_date,
@@ -683,7 +720,10 @@ for article_data in filtered_articles[:50]:
     fe.link(href=article_link)
 
 
-       
+    author = article.get(
+        "author",
+        ""
+    )   
 
     pub_date = article.get(
         "published",
@@ -749,6 +789,13 @@ for article_data in filtered_articles[:50]:
     f'<a href="{homepage_link}"><em>{source_name}</em></a>'
     "</div>"
     )
+
+    if author:
+        
+        description += (
+        f"<div><strong>Author:</strong> "
+        f"{author}</div>"
+        )
     
  # f'<a href="{article_link}"><em>Read full article</em></a>'
 
