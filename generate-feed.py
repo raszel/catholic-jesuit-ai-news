@@ -221,18 +221,18 @@ def get_image(url):
         if image_alt:
             alt_text = image_alt.get("content", "")
         
-        return {
-            "url": image_url,
-            "alt": alt_text
-        }
-
         if not alt_text:
-            
+
             alt_text = (
                 soup.title.get_text(strip=True)
                 if soup.title
                 else ""
             )
+        
+        return {
+            "url": image_url,
+            "alt": alt_text
+        }
 
     
     except Exception:
@@ -577,14 +577,15 @@ def scrape_web_source(source, curated=False):
                 image_url = get_site_logo(full_url)
             
             if not image_url:
+
                 image_url = SOURCE_IMAGES.get(
                     source["name"]
                 )
-
-            image_alt = SOURCE_IMAGE_ALTS.get(
-                source["name"],
-                source["name"]
-            )
+            
+                image_alt = SOURCE_IMAGE_ALTS.get(
+                    source["name"],
+                    source["name"]
+                )
 
 
             print(f"IMAGE URL: {image_url}")
@@ -886,6 +887,11 @@ for article_data in filtered_articles[:50]:
     if isinstance(article, dict):
     
         image_url = article.get("image")
+
+        image_alt = article.get(
+            "image_alt",
+            ""
+        )
     
         if image_url:
     
