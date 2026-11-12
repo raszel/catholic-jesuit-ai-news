@@ -723,9 +723,10 @@ def scrape_web_source(source, curated=False):
 fg = FeedGenerator()
 
 fg.title("Catholic & Jesuit AI News")
-fg.link(href="https://github.com")
+fg.link(href="https://github.com/raszel/catholic-jesuit-ai-news/")
+fg.link(href="https://raszel.github.io/catholic-jesuit-ai-news/rss.xml", rel="self")
 fg.description(
-    "AI and Magnifica Humanitas related news for Creighton University's Institute of Adaptive Intelligence"
+    "AI- and Magnifica Humanitas-related news for Creighton University's Institute of Adaptive Intelligence"
 )
 
 articles = []
