@@ -290,7 +290,7 @@ def format_date(date_string):
             )
 
         formatted = dt.strftime(
-            "%B %d, %Y %I:%M %p %Z"
+            "%B %d, %Y"
         )
 
         return formatted.replace(
@@ -875,7 +875,7 @@ for article_data in filtered_articles[:50]:
 
     #have the entry display the source in brackets and then the article title
     fe.title(
-        f"[{source_name}] {article_title}"
+        f"{article_title}"
     )
 
     article_link = (
@@ -919,34 +919,29 @@ for article_data in filtered_articles[:50]:
         image_url = SOURCE_IMAGES.get(source_name, "")
         image_alt = SOURCE_IMAGE_ALTS.get(source_name, source_name)
 
-    # DESCRIPTION BLOCK (image first, same as Vatican News)
+
+# DESCRIPTION BLOCK
     description = "<div>"
 
     if image_url:
-        description += (
-            f'<img src="{image_url}" '
-            f'alt="{escape(image_alt or "", quote=True)}">'
-        )
+        alt_attr = f' alt="{escape(image_alt, quote=True)}"' if image_alt else ""
+        description += f'<img src="{image_url}"{alt_attr}>'
 
-    description += f"<div><strong>Title:</strong> {article_title}</div>"
+    # one compact line: Source | Author | Date
+    meta_parts = [f'<a href="{homepage_link}"><em>{source_name}</em></a>']
+    if author:
+        meta_parts.append(escape(author))
+    if pub_date:
+        meta_parts.append(pub_date)
 
     description += (
-        f"<div><strong>Source:</strong> "
-        f'<a href="{homepage_link}"><em>{source_name}</em></a></div>'
+        '<div class="meta">' + " &nbsp;|&nbsp; ".join(meta_parts) + "</div>"
     )
-
-    if author:
-        description += f"<div><strong>Author:</strong> {escape(author)}</div>"
-
-    if pub_date:
-        description += f"<div><strong>Published:</strong> {pub_date}</div>"
 
     if summary_text:
         if len(summary_text) > 200:
             summary_text = summary_text[:200].rsplit(" ", 1)[0] + "..."
-        description += (
-            f"<div style='margin-top:8px;'>{escape(summary_text)}</div>"
-        )
+        description += f'<div class="summary">{escape(summary_text)}</div>'
 
     description += (
         f'<div><a href="{article_link}"><em>Read full article</em></a></div>'
@@ -971,6 +966,14 @@ for article_data in filtered_articles[:50]:
 #        except Exception:
 #            pass
 
+
+    #date_struct = article.get (artifact; ignore)
+    date_struct = article.get("published_parsed") or article.get("updated_parsed")
+    if date_struct:
+        try:
+            fe.pubDate(datetime(*date_struct[:6], tzinfo=timezone.utc))
+        except Exception:
+            pass
 # write and post the RSS XML doc
 rss_path = "docs/rss.xml"
 
