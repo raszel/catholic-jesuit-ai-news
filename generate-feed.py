@@ -5,6 +5,7 @@ from feedgen.feed import FeedGenerator
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 import re
+from html import escape
 
 # defining the RSS sources that will require filtering:
 RSS_SOURCES = [
@@ -405,6 +406,39 @@ def get_site_logo(url):
 
     return None
 
+from html import escape
+
+def clean_summary(html, extract_byline=False):
+    """Returns (plain_text, byline_author, first_image_url, first_image_alt)."""
+    soup = BeautifulSoup(html or "", "html.parser")
+    image_url, image_alt, byline = "", "", ""
+
+    img = soup.find("img")
+    if img and img.get("src"):
+        image_url = img["src"]
+        image_alt = img.get("alt", "")
+
+    # drop images/captions so they don't end up in the text
+    for tag in soup.find_all(["figure", "img", "script", "style"]):
+        tag.decompose()
+
+    # pull the "By Name" byline out before stripping formatting
+    if extract_byline:
+        for tag in soup.find_all(["strong", "b"]):
+            t = tag.get_text("", strip=True).replace("\xa0", " ")
+            if t.lower().startswith("by "):
+                byline = re.sub(r"\s+", " ", t[3:]).strip()
+                tag.decompose()
+                break
+
+    # keep word spacing between block elements, then flatten to plain text
+    for tag in soup.find_all(["p", "div", "br", "li", "h1", "h2", "h3", "h4", "h5", "h6"]):
+        tag.append(" ")
+    text = soup.get_text("")
+    text = re.sub(r"\s+", " ", text.replace("\xa0", " ")).strip()
+
+    return text, byline, image_url, image_alt
+
 # defining the parameters for scraping the web sources including to ignore irrelevant links in the webpages
 def scrape_web_source(source, curated=False):
 
@@ -576,21 +610,14 @@ def scrape_web_source(source, curated=False):
             if not image_url:
                 image_url = get_site_logo(full_url)
             
+                        # fallback order: article image -> your source logo -> site-wide og:image
             if not image_url:
+                image_url = SOURCE_IMAGES.get(source["name"], "")
+                image_alt = SOURCE_IMAGE_ALTS.get(source["name"], source["name"])
 
-                image_url = SOURCE_IMAGES.get(
-                    source["name"]
-                )
-
-                print(
-                    f"IMAGE FOR {source['name']}: {image_url}"
-                )
-                
-                image_alt = SOURCE_IMAGE_ALTS.get(
-                    source["name"],
-                    source["name"]
-                )
-
+            if not image_url:
+                image_url = get_site_logo(full_url) or ""
+                image_alt = source["name"]
 
             print(f"IMAGE URL: {image_url}")
             
@@ -857,152 +884,75 @@ for article_data in filtered_articles[:50]:
         else article.link
     )
 
-    fe.link(href=article_link)
+        fe.link(href=article_link)
 
+    # strip formatting from the summary; pull out byline + image where present
+    is_conversations = (source_name == "Conversations on Jesuit Higher Education")
 
-    author = article.get(
-        "author",
-        ""
+    summary_text, byline, summary_img, summary_img_alt = clean_summary(
+        article.get("summary", ""),
+        extract_byline=is_conversations
     )
-    
-    if (
-        source_name == "Conversations on Jesuit Higher Education"
-    ):
-    
-        if article_summary.startswith("By "):
-    
-            first_line = (
-                article_summary
-                .split("\n")[0]
-                .strip()
-            )
-    
-            author = first_line.replace(
-                "By ",
-                ""
-            )   
 
-    pub_date = article.get(
-        "published",
-        article.get("updated", "Unknown date")
-    )
-    
+    # some Conversations items have no text besides byline + image
+    if is_conversations and not summary_text:
+        summary_text = get_description(article_link)
+
+    author = byline or article.get("author", "")
+
     pub_date = format_date(
-        pub_date
+        article.get("published", article.get("updated", "Unknown date"))
     )
 
-#looking for images in the articles
-    if "media_content" in article:
-        
-        image_url = article.media_content[0]["url"]
-    
-        fe.enclosure(
-            image_url,
-            0,
-            "image/jpeg"
+    # pick ONE image: scraped image > feed media > image in summary > source default
+    image_url = article.get("image") or ""
+    image_alt = article.get("image_alt", "")
+
+    if not image_url and article.get("media_content"):
+        image_url = article["media_content"][0].get("url", "")
+        fe.enclosure(image_url, 0, "image/jpeg")
+
+    if not image_url and summary_img:
+        image_url, image_alt = summary_img, summary_img_alt
+
+    if not image_url:
+        image_url = SOURCE_IMAGES.get(source_name, "")
+        image_alt = SOURCE_IMAGE_ALTS.get(source_name, source_name)
+
+    # DESCRIPTION BLOCK (image first, same as Vatican News)
+    description = "<div>"
+
+    if image_url:
+        description += (
+            f'<img src="{image_url}" '
+            f'alt="{escape(image_alt or "", quote=True)}">'
         )
-        
-    image_html = ""
 
-
-    if isinstance(article, dict):
-    
-        image_url = article.get("image")
-
-        image_alt = article.get(
-            "image_alt",
-            ""
-        )
-    
-        if image_url:
-    
-            image_html = (
-                f'<img src="{image_url}" '
-                f'alt="{image_alt}" >'
-            )
-
-# DESCRIPTION BLOCK    
-    description = ("<div>")
-
-
-# getting the images, if there are any to get:
-    if image_html:
-        description += image_html
-    
-    if (
-        hasattr(article, "media_content")
-        and article.media_content
-    ):
-        image_url = article.media_content[0]["url"]
-        
-        # setting the size and display css of the retrieved image
-        image_html = (
-            f'<img src="{image_url}">'
-        )
-    
-        description += image_html
-    
-    description += (
-        f"<div><strong>Title:</strong> "
-        f"{article_title}</div>"
-    )
+    description += f"<div><strong>Title:</strong> {article_title}</div>"
 
     description += (
-    f"<div><strong>Source:</strong> "
-    f'<a href="{homepage_link}"><em>{source_name}</em></a>'
-    "</div>"
+        f"<div><strong>Source:</strong> "
+        f'<a href="{homepage_link}"><em>{source_name}</em></a></div>'
     )
 
     if author:
-        
-        description += (
-        f"<div><strong>Author:</strong> "
-        f"{author}</div>"
-        )
-    
- # f'<a href="{article_link}"><em>Read full article</em></a>'
+        description += f"<div><strong>Author:</strong> {escape(author)}</div>"
 
-    # formatting the display of the article's metadata  
     if pub_date:
+        description += f"<div><strong>Published:</strong> {pub_date}</div>"
+
+    if summary_text:
+        if len(summary_text) > 200:
+            summary_text = summary_text[:200].rsplit(" ", 1)[0] + "..."
         description += (
-            f"<div><strong>Published:</strong> "
-            f"{pub_date}</div>"
-        )
-
-    # retrieving the summary or beginning of the article, then displaying it
-    if "summary" in article:
-
-        summary = (
-            article.get("summary", "")
-            if isinstance(article, dict)
-            else article.summary
-        )
-
-        # if the text is longer than 200 characters, cut it off at 200, then add an ellipses and a link to read the rest of the article text
-        if len(summary) > 200:
-            summary = (
-                summary[:200]
-                .rsplit(" ", 1)[0]
-                + "..."
-            )
-
-        description += (
-            f"<div style='margin-top:8px;'>"
-            f"{summary}"
-            "</div>"
+            f"<div style='margin-top:8px;'>{escape(summary_text)}</div>"
         )
 
     description += (
-        f"<div>"
-        f'<a href="{article_link}"><em>Read full article</em></a>'
-        "</div>"
+        f'<div><a href="{article_link}"><em>Read full article</em></a></div>'
     )
-
-    # end of description block
     description += "</div>"
-    
 
-# telling the FeedGenerator to write the description block for each entry
     fe.description(description)
 
     print(f"SUCCESS: {article_title}")
