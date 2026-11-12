@@ -1,5 +1,5 @@
 # catholic-jesuit-ai-news
-AI news through Catholic and/or Jesuit sources or perspectives
+AI news through Catholic and/or Jesuit sources or perspectives, for Creighton University's Institute for Adaptive Intelligence
 
 Websites articles are pulled from:
   
