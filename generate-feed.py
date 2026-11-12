@@ -884,7 +884,7 @@ for article_data in filtered_articles[:50]:
         else article.link
     )
 
-        fe.link(href=article_link)
+    fe.link(href=article_link)
 
     # strip formatting from the summary; pull out byline + image where present
     is_conversations = (source_name == "Conversations on Jesuit Higher Education")
